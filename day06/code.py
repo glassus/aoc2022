@@ -8,4 +8,4 @@ while len(set(data[i:i+14])) != 14:
     i += 1
 print(i+14)
 
-print([i+14 for i in range(len(data)) if len(set(data[i:i+14])) == 14][0])
+#print([i+14 for i in range(len(data)) if len(set(data[i:i+14])) == 14][0])
