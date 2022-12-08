@@ -1,5 +1,6 @@
 import time
 t0 = time.time()
+
 data = open('input.txt').read().splitlines()
 #data = open('input_test.txt').read().splitlines()
 
@@ -41,13 +42,26 @@ for line in data:
 def aff():
     for rep in lst_dir:
         print(rep.name, rep.files, rep.children, rep.parent)
-
+        
+# fonction poids en récursif + mémoïsation
+dic_poids = {}
 def poids(rep):
+    if rep in dic_poids:
+        return dic_poids[rep]
     total_files = sum([rep.files[f] for f in rep.files])
     if rep.children == []:
         return total_files
     else:
-        return total_files + sum([poids(child) for child in rep.children])
+        val = total_files + sum([poids(child) for child in rep.children])
+        dic_poids[rep] = val
+        return val
+
+
+
+
+
+
+
 
 # #part1
 # t = 0
