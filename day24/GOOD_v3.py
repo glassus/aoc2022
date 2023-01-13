@@ -1,5 +1,5 @@
 data = open('input.txt').read().splitlines()
-#data = open('input_test.txt').read().splitlines()
+data = open('input_test.txt').read().splitlines()
 
 
 haut =  len(data)
@@ -37,12 +37,12 @@ def make_mapp(t):
                     if car == 'v':
                         mapp[t][(i%(haut-2)+1,j)].append(car)
 
-def aff(t, visited=[]):
+def aff(t, trace=True, visited=[]):
     print(t)
     for i in range(haut):
         s = ''
         for j in range(larg):
-            if (i,j) == current:
+            if trace and (i,j) in trajet:
                 s += 'E'
             else:
                 if mapp[t][(i,j)] == []:
@@ -71,6 +71,11 @@ def futurs_libres(t, i, j):
     for x,y in vois:
         if mapp[t][(x,y)] == []:
             sol.append((x,y))
+    if (x, y) == (1, 1):
+        sol.append((0,1))
+    if (x, y) == (haut-2, larg-2):
+        sol.append((haut-1, larg-2))
+    
     return sol
 
 
@@ -79,20 +84,20 @@ stock = []
 
 
 
-t_start = 516
+t_start = 0
 t = t_start
 
 start = (0,1)
-end = (haut-2, larg-2)
+end = (haut-1, larg-2)
 
-# start = (haut-1, larg-2)
-# end = (1,1)
+#start, end = end, start
 
 
 current = start
 visited = {}
+tempo = {}
 
-for t in range(1,t_start+1):
+for t in range(1, t_start+1):
     make_mapp(t)
 
 to_explore.append((t, current))
@@ -100,7 +105,7 @@ stock.append(current)
 
 
 while end not in visited:
-
+    prev = current
     t, current = to_explore.pop(0)
     stock.pop(0)
     #aff(t, visited)
@@ -117,6 +122,19 @@ while end not in visited:
         if voisin not in stock:
             to_explore.append((t+1, voisin))
             stock.append(voisin)
+            if voisin not in visited:
+                visited[voisin] = current
+                tempo[voisin] = t
  
-        
-print('sol', visited[end]+1)  
+
+trajet = []
+pos = end
+while pos != start:
+    trajet.append(pos)
+    pos = visited[pos]
+
+trajet.reverse()
+timing = [tempo[pos] for pos in trajet]  
+
+
+print('sol', t)  
