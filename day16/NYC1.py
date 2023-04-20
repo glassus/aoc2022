@@ -113,6 +113,26 @@ def parcours_from(start):
     parcours([start])
     return total_parcours
 
+
+def n_parcours_from(start, n):
+    total_parcours = []
+    def parcours(graine):
+        if len(graine) == n:
+            total_parcours.append(graine)
+            return None
+        nxt = d[graine[-1]][1]
+        for suiv in nxt:
+            if suiv not in graine:
+                cp_graine = list(graine)
+                cp_graine.append(suiv)
+                parcours(cp_graine)
+
+
+    parcours([start])
+    return total_parcours
+
+
+
 def road_to(start, goal):
     total = parcours_from(start)
     ind_min = 10**3
@@ -128,12 +148,22 @@ def make_trajet(etapes):
     traj = [('AA',0)]
     for ville in etapes:
         start = traj[-1][0]
-        parc = road_to(start, ville)
+        parc = mem_traj[(start, ville)]
         for city in parc:
             traj.append((city,0))
         traj.append((ville,1))
     return traj[1:]
 
+
+def make_trajet_old(etapes):
+    traj = [('AA',0)]
+    for ville in etapes:
+        start = traj[-1][0]
+        parc = road_to(start, ville)
+        for city in parc:
+            traj.append((city,0))
+        traj.append((ville,1))
+    return traj[1:]
 
 def permut(lst, n):
     tot = []
@@ -168,8 +198,86 @@ def bfn(n):
     mp = 0
     for parc in tot:
         p = pression(make_trajet(parc))
-        print(parc,p)
+        #print(parc,p)
         if p > mp:
             mp = p
             max_parc = parc
     print(max_parc, mp)
+    
+    
+def bfn_list(n):
+    taille = 100
+    lst = []
+    tot = permut(pos_triees, n)
+    #print("trajets analysés", len(tot))
+    mp = 0
+    for parc in tot:
+        if len(lst) < taille:
+            lst.append((parc, pression(make_trajet(parc))))
+        else:
+            lst = sorted(lst, key = lambda x : x[1], reverse = True)
+            p = pression(make_trajet(parc))
+            if p > lst[-1][1]:
+                lst.pop()
+                lst.append((parc, pression(make_trajet(parc))))
+    return lst
+
+
+mem_traj = {}
+for dest in pos_triees:
+    mem_traj[('AA', dest)] = road_to('AA', dest)
+
+for origine in pos_triees:
+    for dest in pos_triees:
+        if dest != origine:
+            mem_traj[(origine, dest)] = road_to(origine, dest)
+        
+
+best_6 = ['VD', 'QO', 'FR', 'KU', 'AJ', 'CG']
+
+
+def bfn_list_from4():
+    lst = bfn_list(4)
+    base = [v[0] for v in lst]
+    new_best = []
+    for parc in base:
+        for valv in pos:
+            if valv in parc:
+                continue
+            cp = list(parc)
+            cp.append(valv)
+            new_best.append((cp, pression(make_trajet(cp))))
+    new_best = sorted(new_best, key = lambda x : x[1], reverse = True)  
+    return new_best[:10]
+
+
+def bfn_list_from4():
+    lst = bfn_list(4)
+    base = [v[0] for v in lst]
+    new_best = []
+    for parc in base:
+        for valv in pos:
+            if valv in parc:
+                continue
+            cp = list(parc)
+            cp.append(valv)
+            new_best.append((cp, pression(make_trajet(cp))))
+    new_best = sorted(new_best, key = lambda x : x[1], reverse = True)  
+    return new_best[:10]
+
+
+def make_from5(n):
+    lst = bfn_list(5)
+    for k in range(6, n+1):
+        base = [v[0] for v in lst]
+        new_best = []
+        for parc in base:
+            for valv in pos:
+                if valv in parc:
+                    continue
+                cp = list(parc)
+                cp.append(valv)
+                new_best.append((cp, pression(make_trajet(cp))))
+        new_best = sorted(new_best, key = lambda x : x[1], reverse = True)  
+        lst = new_best[:10]
+    print(k, lst)
